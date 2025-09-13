@@ -21,8 +21,10 @@ FLUSH PRIVILEGES;
 EOF
 
 # Matar o mysqld temporário
-killall mysqld_safe
+mysqladmin -u root shutdown
 sleep 2
 
 # Arrancar o servidor normal
 exec mysqld_safe
+
+
