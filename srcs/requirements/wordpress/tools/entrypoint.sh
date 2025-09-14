@@ -6,6 +6,8 @@ set -eu
 # Optional: WP_TITLE, WP_URL, WP_ADMIN_EMAIL, WP_USER, WP_USER_EMAIL, WP_USER_PASSWORD
 
 WP_PATH=${WP_PATH:-/var/www/html}
+export WP_CLI_CACHE_DIR=/tmp/wp-cli-cache
+mkdir -p "$WP_CLI_CACHE_DIR"
 DB_HOST=${DB_HOST:-mariadb}
 
 mkdir -p "$WP_PATH"

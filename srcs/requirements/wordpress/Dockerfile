@@ -27,7 +27,12 @@ COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN set -eux; \
 	v=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;'); \
 	mkdir -p "/etc/php/${v}/fpm/pool.d"; \
-	mv /tmp/www.conf "/etc/php/${v}/fpm/pool.d/www.conf"
+		mv /tmp/www.conf "/etc/php/${v}/fpm/pool.d/www.conf"; \
+		# Redirect php-fpm master error log to stderr to avoid FS permission issues
+		conf="/etc/php/${v}/fpm/php-fpm.conf"; \
+		if [ -f "$conf" ]; then \
+			sed -i 's#^;\?\s*error_log\s*=.*#error_log = /proc/self/fd/2#' "$conf"; \
+		fi
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
 	&& chown -R ${PHP_FPM_USER}:${PHP_FPM_GROUP} ${WP_PATH} /run/php
