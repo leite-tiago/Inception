@@ -1,7 +1,7 @@
 FROM debian:12
 
 ENV DEBIAN_FRONTEND=noninteractive \
-	WP_PATH=/var/www/wordpress \
+	WP_PATH=/var/www/html \
 	PHP_FPM_USER=www-data \
 	PHP_FPM_GROUP=www-data
 
@@ -37,5 +37,3 @@ WORKDIR ${WP_PATH}
 EXPOSE 9000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-USER www-data
