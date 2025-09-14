@@ -11,8 +11,28 @@ services:
       - inception
     restart: always
 
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    env_file: .env
+    depends_on:
+      - mariadb
+    volumes:
+      - wordpress_data:/var/www/wordpress
+    networks:
+      - inception
+    restart: always
+    environment:
+      - DB_HOST=mariadb
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9000"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
 volumes:
   mariadb_data:
+  wordpress_data:
 
 networks:
   inception:
