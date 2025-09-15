@@ -28,6 +28,21 @@ services:
       timeout: 3s
       retries: 5
 
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    networks:
+      - inception
+    restart: always
+
 volumes:
   mariadb_data:
   wordpress_data:
