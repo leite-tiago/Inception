@@ -1,6 +1,7 @@
 services:
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     env_file: .env
     volumes:
@@ -11,6 +12,7 @@ services:
 
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     env_file: .env
     depends_on:
@@ -30,6 +32,7 @@ services:
 
   nginx:
     build: ./requirements/nginx
+    image: nginx
     container_name: nginx
     depends_on:
       - wordpress
@@ -45,7 +48,17 @@ services:
 
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/tborges-/data/mariadb
   wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/tborges-/data/wordpress
 
 networks:
   inception:
