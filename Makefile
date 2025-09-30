@@ -6,7 +6,7 @@
 #    By: tborges- <tborges-@student.42lisboa.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/21 19:26:29 by tborges-          #+#    #+#              #
-#    Updated: 2025/09/29 19:52:52 by tborges-         ###   ########.fr        #
+#    Updated: 2025/09/30 21:24:16 by tborges-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ WP_DIR=$(DATA_DIR)/wordpress
 
 DOCKER_COMPOSE=docker compose -f $(COMPOSE_FILE)
 
-.PHONY: all build up start stop down ps logs fclean clean re prune volumes status help certs
+.PHONY: all build up start stop down ps logs fclean clean re prune volumes status help certs wipe-data
 
 all: build up ## Build and start the full stack
 
@@ -61,12 +61,18 @@ prune: ## Remove dangling resources (CAREFUL)
 clean: down ## Remove containers + network (keep images & volumes)
 	@echo "[+] Clean done"
 
-fclean: down ## Remove EVERYTHING: images + volumes + data folders
+fclean: down wipe-data ## Remove EVERYTHING: images + volumes + data folders
 	@echo "[!] Removing images and volumes for project"
 	-docker image rm mariadb wordpress nginx 2>/dev/null || true
 	-docker volume rm $$(docker volume ls -q | grep -E 'mariadb|wordpress') 2>/dev/null || true
-	@echo "[!] Deleting bind data directories"
-	rm -rf $(DB_DIR) $(WP_DIR)
+	@echo "[!] Full reset complete"
+
+wipe-data: ## Forcefully delete bind-mounted data (handles permission issues)
+	@echo "[!] Wiping bind-mounted data directories (may need sudo if owned by different UID)"
+	@if [ -d $(DB_DIR) ] || [ -d $(WP_DIR) ]; then \
+	  docker run --rm -v $(DATA_DIR):/data alpine:3.19 sh -c 'rm -rf /data/mariadb /data/wordpress || true'; \
+	fi
+	@mkdir -p $(DB_DIR) $(WP_DIR)
 
 re: fclean all ## Full rebuild
 

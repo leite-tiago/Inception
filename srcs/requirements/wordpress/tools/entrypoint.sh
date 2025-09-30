@@ -46,15 +46,20 @@ ensure_wp() {
 
 install_wp() {
   if ! wp core is-installed --allow-root --path="$WP_PATH" >/dev/null 2>&1; then
-    local url=${WP_URL:-http://localhost}
+    local url=${WP_URL:-}
     local title=${WP_TITLE:-"Inception WP"}
     local admin=${MYSQL_ADMIN:-admin}
     local admin_pass=${MYSQL_ADMIN_PASSWORD:-adminpass}
     local admin_email=${WP_ADMIN_EMAIL:-admin@example.com}
 
-    # Enforce HTTPS (project requirement: only 443 entrypoint)
+    # Require explicit WP_URL and must be https
+    if [ -z "$url" ]; then
+      echo "[ERROR] WP_URL is not set. Set WP_URL to an https:// domain." >&2
+      exit 2
+    fi
     case "$url" in
-      http://*) echo "[WARN] WP_URL is http:// – switching to https://"; url="https://${url#http://}" ;;
+      https://*) : ;; # ok
+      *) echo "[ERROR] WP_URL must start with https:// (value: $url)" >&2; exit 2 ;;
     esac
 
     # Enforce admin username policy (cannot contain 'admin' case-insensitive)

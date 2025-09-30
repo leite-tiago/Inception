@@ -1,8 +1,0 @@
-### Inception project ignores ###
-srcs/.env
-secrets/*
-!secrets/.keep
-*.log
-*.swp
-*.DS_Store
-### End ###
