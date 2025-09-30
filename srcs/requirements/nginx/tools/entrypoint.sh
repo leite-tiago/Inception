@@ -17,9 +17,12 @@ if [ ! -f "$CRT" ] || [ ! -f "$KEY" ]; then
   chmod 644 "$CRT"
 fi
 
-# Substitute env vars in config if present
-if grep -q "${DOMAIN_NAME}" /etc/nginx/conf.d/default.conf 2>/dev/null; then
-  : # already literal
+# Template substitution (server_name)
+CONF_TEMPLATE=/etc/nginx/conf.d/default.conf
+if grep -q '\${DOMAIN_NAME}' "$CONF_TEMPLATE" 2>/dev/null; then
+  echo "Substituting DOMAIN_NAME=$DOMAIN in nginx config..."
+  sed "s/\\${DOMAIN_NAME}/$DOMAIN/g" "$CONF_TEMPLATE" > /tmp/nginx.conf
+  mv /tmp/nginx.conf "$CONF_TEMPLATE"
 fi
 
 nginx -t

@@ -9,6 +9,11 @@ services:
     networks:
       - inception
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -u${MYSQL_USER} -p${MYSQL_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   wordpress:
     build: ./requirements/wordpress
@@ -16,7 +21,8 @@ services:
     container_name: wordpress
     env_file: .env
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     volumes:
       - wordpress_data:/var/www/html
     networks:

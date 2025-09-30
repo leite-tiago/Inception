@@ -52,6 +52,17 @@ install_wp() {
     local admin_pass=${MYSQL_ADMIN_PASSWORD:-adminpass}
     local admin_email=${WP_ADMIN_EMAIL:-admin@example.com}
 
+    # Enforce HTTPS (project requirement: only 443 entrypoint)
+    case "$url" in
+      http://*) echo "[WARN] WP_URL is http:// – switching to https://"; url="https://${url#http://}" ;;
+    esac
+
+    # Enforce admin username policy (cannot contain 'admin' case-insensitive)
+    if printf '%s' "$admin" | grep -iq 'admin'; then
+      echo "[ERROR] Admin username '$admin' is invalid (contains 'admin'). Set MYSQL_ADMIN to a compliant value." >&2
+      exit 2
+    fi
+
     echo "Installing WordPress site..."
     wp core install --allow-root \
       --url="$url" \
